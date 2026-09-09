@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, FormEvent } from "react";
+import ConciergeChat from "./ConciergeChat";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -11,6 +12,7 @@ export default function TripPlanForm() {
   const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
+  const [leadId, setLeadId] = useState<string | null>(null);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -33,6 +35,7 @@ export default function TripPlanForm() {
 
       setStatus("success");
       setMessage(data.message || "Thanks — we've received your request.");
+      setLeadId(data.id);
     } catch {
       setStatus("error");
       setMessage(
@@ -41,13 +44,16 @@ export default function TripPlanForm() {
     }
   }
 
-  if (status === "success") {
+  if (status === "success" && leadId) {
     return (
-      <div className="mx-auto max-w-md rounded-md border border-[#E4D9C8] bg-[#FAF7F2] p-8 text-center">
-        <p className="font-serif text-xl text-[#1C1A17]">
-          You&apos;re on the list
-        </p>
-        <p className="mt-2 text-sm text-[#5B554B]">{message}</p>
+      <div className="mx-auto max-w-md space-y-4">
+        <div className="rounded-md border border-[#E4D9C8] bg-[#FAF7F2] p-6 text-center">
+          <p className="font-serif text-xl text-[#1C1A17]">
+            You&apos;re on the list
+          </p>
+          <p className="mt-2 text-sm text-[#5B554B]">{message}</p>
+        </div>
+        <ConciergeChat leadId={leadId} />
       </div>
     );
   }

@@ -59,6 +59,91 @@ export default async function LeadDetailPage({
           </dl>
         </div>
 
+        {/* Trip details gathered by the AI Concierge (Module 5) — blank
+            until the visitor has actually chatted and given some detail. */}
+        <div className="mt-4 rounded-md border border-[#E4D9C8] bg-white p-6">
+          <p className="text-sm font-medium text-[#1C1A17]">Trip details</p>
+          <dl className="mt-3 grid grid-cols-2 gap-3 text-sm">
+            <div>
+              <dt className="text-[#8A8272]">Country</dt>
+              <dd className="text-[#1C1A17]">{lead.country || "—"}</dd>
+            </div>
+            <div>
+              <dt className="text-[#8A8272]">Travel date</dt>
+              <dd className="text-[#1C1A17]">{lead.travel_date || "—"}</dd>
+            </div>
+            <div>
+              <dt className="text-[#8A8272]">Duration</dt>
+              <dd className="text-[#1C1A17]">
+                {lead.trip_duration ? `${lead.trip_duration} days` : "—"}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[#8A8272]">Group size</dt>
+              <dd className="text-[#1C1A17]">{lead.group_size ?? "—"}</dd>
+            </div>
+            <div>
+              <dt className="text-[#8A8272]">Regions</dt>
+              <dd className="text-[#1C1A17]">
+                {lead.interested_regions?.length
+                  ? lead.interested_regions.join(", ")
+                  : "—"}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[#8A8272]">Trip type</dt>
+              <dd className="text-[#1C1A17]">{lead.trip_type || "—"}</dd>
+            </div>
+            <div>
+              <dt className="text-[#8A8272]">Tour preference</dt>
+              <dd className="text-[#1C1A17]">{lead.tour_preference || "—"}</dd>
+            </div>
+            <div>
+              <dt className="text-[#8A8272]">Budget</dt>
+              <dd className="text-[#1C1A17]">{lead.budget_range || "—"}</dd>
+            </div>
+            <div>
+              <dt className="text-[#8A8272]">Visited before</dt>
+              <dd className="text-[#1C1A17]">
+                {lead.visited_before === true
+                  ? "Yes"
+                  : lead.visited_before === false
+                    ? "No"
+                    : "—"}
+              </dd>
+            </div>
+          </dl>
+        </div>
+
+        {/* Full AI Concierge conversation, if the visitor chatted at all. */}
+        {Array.isArray(lead.concierge_transcript) &&
+          lead.concierge_transcript.length > 0 && (
+            <div className="mt-4 rounded-md border border-[#E4D9C8] bg-white p-6">
+              <p className="text-sm font-medium text-[#1C1A17]">
+                Concierge conversation
+              </p>
+              <div className="mt-3 space-y-2">
+                {(
+                  lead.concierge_transcript as {
+                    role: string;
+                    content: string;
+                  }[]
+                ).map((turn, i) => (
+                  <div
+                    key={i}
+                    className={`max-w-[85%] whitespace-pre-wrap rounded-md px-3 py-2 text-sm ${
+                      turn.role === "user"
+                        ? "ml-auto bg-[#B5541F] text-white"
+                        : "bg-[#FAF7F2] text-[#1C1A17]"
+                    }`}
+                  >
+                    {turn.content}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
         <form
           action={updateLeadStatus}
           className="mt-6 flex items-center gap-3"
