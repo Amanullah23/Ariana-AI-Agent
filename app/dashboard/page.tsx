@@ -38,11 +38,22 @@ export default async function DashboardPage({
       <div className="mx-auto max-w-4xl">
         <div className="flex items-center justify-between">
           <h1 className="font-serif text-2xl text-[#1C1A17]">Leads</h1>
-          <form action={signOut}>
-            <button type="submit" className="text-sm text-[#5B554B] underline">
-              Sign out
-            </button>
-          </form>
+          <div className="flex items-center gap-4">
+            <Link
+              href="/dashboard/trends"
+              className="text-sm text-[#5B554B] underline"
+            >
+              Trend discovery
+            </Link>
+            <form action={signOut}>
+              <button
+                type="submit"
+                className="text-sm text-[#5B554B] underline"
+              >
+                Sign out
+              </button>
+            </form>
+          </div>
         </div>
 
         <nav className="mt-6 flex gap-2 border-b border-[#E4D9C8]">

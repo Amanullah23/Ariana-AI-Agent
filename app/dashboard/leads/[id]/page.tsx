@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { updateLeadStatus } from "./actions";
+import { signOut } from "@/app/login/actions";
 
 export default async function LeadDetailPage({
   params,
@@ -22,9 +23,16 @@ export default async function LeadDetailPage({
   return (
     <main className="min-h-screen bg-[#FAF7F2] px-6 py-10">
       <div className="mx-auto max-w-2xl">
-        <Link href="/dashboard" className="text-sm text-[#5B554B] underline">
-          ← Back to leads
-        </Link>
+        <div className="flex items-center justify-between">
+          <Link href="/dashboard" className="text-sm text-[#5B554B] underline">
+            ← Back to leads
+          </Link>
+          <form action={signOut}>
+            <button type="submit" className="text-sm text-[#5B554B] underline">
+              Sign out
+            </button>
+          </form>
+        </div>
 
         <h1 className="mt-4 font-serif text-2xl text-[#1C1A17]">{lead.name}</h1>
         <p className="text-sm text-[#8A8272]">{lead.email}</p>
