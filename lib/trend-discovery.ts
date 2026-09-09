@@ -31,6 +31,10 @@ async function tavilySearch(
     headers: {
       Authorization: `Bearer ${process.env.TAVILY_API_KEY}`,
       "Content-Type": "application/json",
+      Accept: "application/json",
+      // Some Tavily-side WAF/CDN layers block requests with no
+      // User-Agent — Node's fetch doesn't set one by default.
+      "User-Agent": "AriananAgentAI/1.0 (+https://ariana-ai-agent.vercel.app)",
     },
     body: JSON.stringify({
       query,

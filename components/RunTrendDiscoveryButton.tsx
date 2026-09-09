@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Loader2, Sparkles } from "lucide-react";
 
 export default function RunTrendDiscoveryButton() {
   const [loading, setLoading] = useState(false);
@@ -27,15 +28,22 @@ export default function RunTrendDiscoveryButton() {
   }
 
   return (
-    <div>
+    <div className="shrink-0 text-right">
       <button
         onClick={handleClick}
         disabled={loading}
-        className="rounded bg-[#B5541F] px-4 py-2 text-sm font-medium text-white hover:bg-[#984619] disabled:cursor-not-allowed disabled:opacity-50"
+        className="flex items-center gap-2 rounded-lg bg-[var(--color-lapis)] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[var(--color-lapis-deep)] disabled:cursor-not-allowed disabled:opacity-50"
       >
+        {loading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <Sparkles className="h-4 w-4" strokeWidth={1.75} />
+        )}
         {loading ? "Researching..." : "Run trend discovery now"}
       </button>
-      {error && <p className="mt-2 text-sm text-[#B5541F]">{error}</p>}
+      {error && (
+        <p className="mt-2 text-sm text-[var(--color-rust)]">{error}</p>
+      )}
     </div>
   );
 }
