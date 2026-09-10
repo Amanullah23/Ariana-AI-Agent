@@ -66,7 +66,11 @@ Read through them and identify:
 1. The recurring themes and questions people actually have (visa process, safety questions, specific regions, cost, etc.)
 2. Five concrete blog post topics Ariana's content team could write to address these
 
-Do not answer any safety or security question yourself — just note that people are asking about it as a theme, the same way you'd note any other recurring topic. Respond with strict JSON only, no other text:
+Do not answer any safety or security question yourself — just note that people are asking about it as a theme, the same way you'd note any other recurring topic.
+
+This restriction extends to the suggested topic titles themselves: never phrase a title as a safety verdict or assurance (e.g. no "Safe Routes...", "Is Afghanistan Safe...", "Is X Dangerous..."). A safety-adjacent topic should be framed descriptively and practically instead — e.g. "What to Know About Border Crossings" or "Border Crossing Logistics: A Practical Guide" rather than "Safe Border Crossings." The theme can acknowledge that people ask about safety; the suggested title must never answer it.
+
+Respond with strict JSON only, no other text:
 {
   "summary": "<2-3 sentence overview of what's trending>",
   "themes": [<array of short theme strings>],
