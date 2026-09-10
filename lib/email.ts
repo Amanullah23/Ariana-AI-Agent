@@ -17,6 +17,71 @@ type WelcomeEmailInput = {
   interestNote: string | null;
 };
 
+// Where the "a lead just went Hot" alert goes. A one-line env override
+// so this can change later without touching code — falls back to a
+// fixed address for now.
+const OWNER_NOTIFICATION_EMAIL =
+  process.env.OWNER_NOTIFICATION_EMAIL || "amanyawari220@gmail.com";
+
+type HotLeadInput = {
+  id: string;
+  name: string;
+  email: string;
+  interestNote: string | null;
+  leadScore: number | null;
+  scoreReasoning: string | null;
+};
+
+/**
+ * Sends the owner a one-time alert the moment a lead first crosses into
+ * Hot. Deliberately separate from the visitor-facing welcome email — this
+ * goes to the owner's own inbox, not the lead's. Caller is responsible for
+ * only invoking this once per lead (see the hot_notified flag in scoring.ts)
+ * — this function itself doesn't check that, so it's not safe to call
+ * repeatedly without that guard.
+ */
+export async function sendHotLeadNotification({
+  id,
+  name,
+  email,
+  interestNote,
+  leadScore,
+  scoreReasoning,
+}: HotLeadInput) {
+  const dashboardUrl = `${APP_URL}/dashboard/leads/${id}`;
+
+  const html = `
+    <div style="font-family: Georgia, serif; max-width: 480px; margin: 0 auto; color: #1C1A17;">
+      <h1 style="font-size: 20px;">🔥 Hot lead: ${escapeHtml(name)}</h1>
+      <p style="font-size: 15px;">Score: <strong>${leadScore ?? "?"}</strong></p>
+      ${scoreReasoning ? `<p style="color: #5B554B;">${escapeHtml(scoreReasoning)}</p>` : ""}
+      <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+      ${interestNote ? `<p><strong>Stated interest:</strong> ${escapeHtml(interestNote)}</p>` : ""}
+      <p style="margin-top: 28px;">
+        <a href="${dashboardUrl}" style="color: #1F4E79; font-weight: bold;">View this lead in the dashboard →</a>
+      </p>
+    </div>
+  `;
+
+  try {
+    const { error } = await resend.emails.send({
+      from: FROM_ADDRESS,
+      to: OWNER_NOTIFICATION_EMAIL,
+      subject: `🔥 Hot lead: ${name}`,
+      html,
+    });
+    if (error) {
+      console.error(
+        "sendHotLeadNotification: Resend returned an error for",
+        id,
+        error,
+      );
+    }
+  } catch (err) {
+    console.error("sendHotLeadNotification: send failed for", id, err);
+  }
+}
+
 function escapeHtml(input: string) {
   return input
     .replace(/&/g, "&amp;")

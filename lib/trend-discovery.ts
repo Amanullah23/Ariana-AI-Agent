@@ -1,5 +1,6 @@
 import Groq from "groq-sdk";
 import { supabaseAdmin } from "./supabase-admin";
+import { tavilySearch, sleep, type TavilyResult } from "./tavily";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -13,52 +14,6 @@ const SEARCH_QUERIES = [
   "Bamyan Kabul travel blog experience",
   "backpacking Afghanistan trip report",
 ];
-
-type TavilyResult = { title: string; url: string; content: string };
-
-async function tavilySearch(
-  query: string,
-): Promise<{ results: TavilyResult[]; errorDetail: string | null }> {
-  if (!process.env.TAVILY_API_KEY) {
-    return {
-      results: [],
-      errorDetail: "TAVILY_API_KEY is not set in this environment.",
-    };
-  }
-
-  const res = await fetch("https://api.tavily.com/search", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${process.env.TAVILY_API_KEY}`,
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      // Some Tavily-side WAF/CDN layers block requests with no
-      // User-Agent — Node's fetch doesn't set one by default.
-      "User-Agent": "AriananAgentAI/1.0 (+https://ariana-ai-agent.vercel.app)",
-    },
-    body: JSON.stringify({
-      query,
-      search_depth: "basic",
-      max_results: 5,
-      topic: "general",
-    }),
-  });
-
-  if (!res.ok) {
-    const bodyText = await res.text();
-    console.error("tavilySearch failed for", query, res.status, bodyText);
-    return {
-      results: [],
-      errorDetail: `Tavily ${res.status}: ${bodyText.slice(0, 200)}`,
-    };
-  }
-
-  const data = await res.json();
-  return {
-    results: Array.isArray(data.results) ? data.results : [],
-    errorDetail: null,
-  };
-}
 
 const SYNTHESIS_PROMPT = `You're a content strategist for Ariana Expeditions, an Afghanistan tourism company. Below are web search results showing what people are publicly asking, writing, and discussing about traveling to Afghanistan.
 
@@ -91,6 +46,7 @@ export async function runTrendDiscovery() {
     const { results, errorDetail } = await tavilySearch(query);
     allResults.push({ query, results });
     if (errorDetail) errors.push(errorDetail);
+    await sleep(600); // space out requests — a tight burst is a common WAF trigger
   }
 
   const digestText = allResults

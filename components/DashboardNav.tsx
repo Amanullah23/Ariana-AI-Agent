@@ -2,12 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Compass, LayoutList, TrendingUp, LogOut } from "lucide-react";
+import {
+  Compass,
+  LayoutList,
+  TrendingUp,
+  Megaphone,
+  LogOut,
+} from "lucide-react";
 import { signOut } from "@/app/login/actions";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Leads", icon: LayoutList },
   { href: "/dashboard/trends", label: "Trend discovery", icon: TrendingUp },
+  { href: "/dashboard/engagement", label: "Engagement", icon: Megaphone },
 ];
 
 export default function DashboardNav() {

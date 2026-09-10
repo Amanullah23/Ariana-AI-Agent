@@ -1,5 +1,6 @@
 import Groq from "groq-sdk";
 import { supabaseAdmin } from "./supabase-admin";
+import { sendHotLeadNotification } from "./email";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -32,7 +33,7 @@ export async function scoreLead(leadId: string) {
   const { data: lead, error: fetchError } = await supabaseAdmin
     .from("leads")
     .select(
-      "name, interest_note, country, travel_date, trip_duration, group_size, interested_regions, budget_range, concierge_transcript",
+      "name, email, interest_note, country, travel_date, trip_duration, group_size, interested_regions, budget_range, concierge_transcript, hot_notified",
     )
     .eq("id", leadId)
     .single();
@@ -103,12 +104,28 @@ export async function scoreLead(leadId: string) {
 
   const category = categoryFromScore(score);
 
+  // Fire the owner alert the moment a lead first crosses into Hot — never
+  // again after that, even if it gets re-scored repeatedly (e.g. across a
+  // multi-turn Concierge conversation).
+  const shouldNotify = category === "Hot" && !lead.hot_notified;
+  if (shouldNotify) {
+    await sendHotLeadNotification({
+      id: leadId,
+      name: lead.name,
+      email: lead.email,
+      interestNote: lead.interest_note,
+      leadScore: score,
+      scoreReasoning: reasoning,
+    });
+  }
+
   const { error: updateError } = await supabaseAdmin
     .from("leads")
     .update({
       lead_score: score,
       lead_category: category,
       score_reasoning: reasoning,
+      ...(shouldNotify ? { hot_notified: true } : {}),
     })
     .eq("id", leadId);
 
